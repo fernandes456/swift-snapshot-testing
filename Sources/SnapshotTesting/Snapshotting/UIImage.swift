@@ -92,10 +92,17 @@ private func compare(_ old: UIImage, _ new: UIImage, precision: Float) -> Bool {
   if memcmp(oldData, newerData, byteCount) == 0 { return true }
   if precision >= 1 { return false }
   var differentPixelCount = 0
+  let allowedDifference = 3
   let threshold = 1 - precision
   for byte in 0..<byteCount {
-    if oldBytes[byte] != newerBytes[byte] { differentPixelCount += 1 }
-    if Float(differentPixelCount) / Float(byteCount) > threshold { return false}
+    if oldBytes[byte] != newerBytes[byte] && (byte % 4 != 0) {
+      if allowedDifference == 0 || abs(Int(oldBytes[byte]) - Int(newerBytes[byte])) > allowedDifference {
+        differentPixelCount += 1
+      }
+    }
+    if Float(differentPixelCount) / Float(byteCount) > threshold {
+        return false
+    }
   }
   return true
 }
